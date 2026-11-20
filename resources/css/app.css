@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root { color-scheme: light; }
+    body { background: #f8fafc; }
+}
+
+@layer components {
+    .font-body { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
+    .font-display { font-family: 'Plus Jakarta Sans', 'DM Sans', ui-sans-serif, sans-serif; }
+    .card-surface { @apply rounded-2xl border border-slate-200/80 bg-white shadow-[0_12px_30px_rgba(15,45,43,0.04)]; }
+}
