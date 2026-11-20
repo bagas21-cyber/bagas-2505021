@@ -12,7 +12,7 @@
             ];
         @endphp
         @foreach ($menus as [$routeName, $label, $icon])
-            <a href="{{ route($routeName) }}" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition {{ request()->routeIs($routeName) ? 'bg-teal-400 text-[#102d2b] shadow-lg shadow-teal-950/20' : 'text-teal-50/70 hover:bg-white/10 hover:text-white' }}"><span class="w-6 text-center text-lg">{{ $icon }}</span>{{ $label }}</a>
+            <a href="{{ route($routeName) }}" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition {{ request()->routeIs($routeName) || ($routeName === 'categories.index' && request()->routeIs('categories.*')) || ($routeName === 'suppliers.index' && request()->routeIs('suppliers.*')) ? 'bg-teal-400 text-[#102d2b] shadow-lg shadow-teal-950/20' : 'text-teal-50/70 hover:bg-white/10 hover:text-white' }}"><span class="w-6 text-center text-lg">{{ $icon }}</span>{{ $label }}</a>
         @endforeach
     </nav>
     <p class="mb-3 mt-9 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-teal-100/45">Lainnya</p>

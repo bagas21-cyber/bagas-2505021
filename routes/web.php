@@ -11,10 +11,11 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::resource('categories', \App\Http\Controllers\CategoryController::class);
+    Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
+
     foreach ([
         'products' => 'Produk',
-        'categories' => 'Kategori',
-        'suppliers' => 'Supplier',
         'stock-ins' => 'Stok Masuk',
         'sales' => 'Penjualan',
         'reports' => 'Laporan',

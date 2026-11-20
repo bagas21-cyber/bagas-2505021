@@ -1,0 +1,3 @@
+@csrf
+<div><label for="name" class="text-sm font-bold text-slate-700">Nama kategori <span class="text-rose-500">*</span></label><input id="name" name="name" value="{{ old('name', $category->name ?? '') }}" required autofocus class="mt-2 w-full rounded-xl border-slate-200 py-3 text-sm focus:border-teal-500 focus:ring-teal-500"><x-input-error :messages="$errors->get('name')" class="mt-2" /></div>
+<div class="flex justify-end gap-3 pt-2"><a href="{{ route('categories.index') }}" class="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50">Batal</a><button class="rounded-xl bg-teal-500 px-5 py-3 text-sm font-bold text-white hover:bg-teal-600">{{ $buttonLabel }}</button></div>

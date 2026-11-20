@@ -26,6 +26,7 @@
                 </header>
                 <main class="px-5 py-7 lg:px-10 lg:py-9">{{ $slot }}</main>
             </div>
+            <x-flash />
         </div>
         @stack('scripts')
     </body>
