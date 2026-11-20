@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StockInController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,10 +16,12 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::resource('categories', \App\Http\Controllers\CategoryController::class);
     Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
     Route::resource('products', ProductController::class);
+    Route::get('stock-ins/autocomplete', [StockInController::class, 'autocomplete'])->name('stock-ins.autocomplete');
+    Route::post('stock-ins/{stock_in}/cancel', [StockInController::class, 'cancel'])->name('stock-ins.cancel');
+    Route::resource('stock-ins', StockInController::class)->only(['index', 'create', 'store', 'show']);
 
+    Route::view('/sales', 'placeholder', ['title' => 'Penjualan'])->name('sales.index');
     foreach ([
-        'stock-ins' => 'Stok Masuk',
-        'sales' => 'Penjualan',
         'reports' => 'Laporan',
         'settings' => 'Pengaturan',
     ] as $uri => $label) {
