@@ -67,6 +67,11 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
     public function scopeLowStock(Builder $query): Builder
     {
         return $query->whereColumn('stock', '<=', 'min_stock');

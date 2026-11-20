@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,9 +14,9 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
     Route::resource('categories', \App\Http\Controllers\CategoryController::class);
     Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
+    Route::resource('products', ProductController::class);
 
     foreach ([
-        'products' => 'Produk',
         'stock-ins' => 'Stok Masuk',
         'sales' => 'Penjualan',
         'reports' => 'Laporan',
