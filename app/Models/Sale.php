@@ -11,11 +11,16 @@ class Sale extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'invoice_no', 'date', 'total', 'paid', 'change', 'note'];
+    protected $fillable = ['user_id', 'invoice_no', 'date', 'total', 'paid', 'change', 'note', 'voided_at'];
 
     protected function casts(): array
     {
-        return ['date' => 'datetime', 'total' => 'integer', 'paid' => 'integer', 'change' => 'integer'];
+        return ['date' => 'datetime', 'total' => 'integer', 'paid' => 'integer', 'change' => 'integer', 'voided_at' => 'datetime'];
+    }
+
+    public function isVoided(): bool
+    {
+        return $this->voided_at !== null;
     }
 
     public function user(): BelongsTo

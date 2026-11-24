@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockInController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,8 +20,9 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('stock-ins/autocomplete', [StockInController::class, 'autocomplete'])->name('stock-ins.autocomplete');
     Route::post('stock-ins/{stock_in}/cancel', [StockInController::class, 'cancel'])->name('stock-ins.cancel');
     Route::resource('stock-ins', StockInController::class)->only(['index', 'create', 'store', 'show']);
-
-    Route::view('/sales', 'placeholder', ['title' => 'Penjualan'])->name('sales.index');
+    Route::get('sales/autocomplete', [SaleController::class, 'autocomplete'])->name('sales.autocomplete');
+    Route::post('sales/{sale}/void', [SaleController::class, 'void'])->name('sales.void');
+    Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'show']);
     foreach ([
         'reports' => 'Laporan',
         'settings' => 'Pengaturan',

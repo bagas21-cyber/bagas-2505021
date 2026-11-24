@@ -22,15 +22,19 @@ class DashboardController extends Controller
         $previousMonthEnd = $monthStart->copy()->subSecond();
 
         $todaySales = Sale::query()
+            ->whereNull('voided_at')
             ->whereBetween('date', [$todayStart, $todayEnd])
             ->sum('total');
         $todayTransactions = Sale::query()
+            ->whereNull('voided_at')
             ->whereBetween('date', [$todayStart, $todayEnd])
             ->count();
         $monthSales = Sale::query()
+            ->whereNull('voided_at')
             ->whereBetween('date', [$monthStart, $monthEnd])
             ->sum('total');
         $previousMonthSales = Sale::query()
+            ->whereNull('voided_at')
             ->whereBetween('date', [$previousMonthStart, $previousMonthEnd])
             ->sum('total');
         $salesChange = $previousMonthSales > 0
@@ -39,6 +43,7 @@ class DashboardController extends Controller
 
         $salesByDate = Sale::query()
             ->selectRaw('DATE(date) as sales_date, SUM(total) as total')
+            ->whereNull('voided_at')
             ->whereBetween('date', [$now->copy()->subDays(6)->startOfDay(), $todayEnd])
             ->groupByRaw('DATE(date)')
             ->pluck('total', 'sales_date');
@@ -60,6 +65,7 @@ class DashboardController extends Controller
             ])
             ->join('products', 'products.id', '=', 'sale_items.product_id')
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->whereNull('sales.voided_at')
             ->whereBetween('sales.date', [$monthStart, $monthEnd])
             ->groupBy('products.id', 'products.name')
             ->orderByDesc('revenue')
@@ -83,6 +89,7 @@ class DashboardController extends Controller
             'recentSales' => Sale::query()
                 ->with('user:id,name')
                 ->withCount('items')
+                ->whereNull('voided_at')
                 ->latest('date')
                 ->limit(6)
                 ->get(['id', 'user_id', 'invoice_no', 'date', 'total']),
