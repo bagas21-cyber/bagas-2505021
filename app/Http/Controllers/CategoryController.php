@@ -25,11 +25,14 @@ class CategoryController extends Controller
 
     public function create(): View
     {
+        $this->ensureAdmin();
+
         return view('categories.create');
     }
 
     public function store(CategoryRequest $request): RedirectResponse
     {
+        $this->ensureAdmin();
         Category::create($request->validated());
 
         return to_route('categories.index')->with('success', 'Kategori berhasil ditambahkan.');
@@ -44,11 +47,14 @@ class CategoryController extends Controller
 
     public function edit(Category $category): View
     {
+        $this->ensureAdmin();
+
         return view('categories.edit', compact('category'));
     }
 
     public function update(CategoryRequest $request, Category $category): RedirectResponse
     {
+        $this->ensureAdmin();
         $category->update($request->validated());
 
         return to_route('categories.index')->with('success', 'Kategori berhasil diperbarui.');
@@ -56,6 +62,7 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
+        $this->ensureAdmin();
         if ($category->products()->exists()) {
             return to_route('categories.index')->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh produk.');
         }
@@ -63,5 +70,10 @@ class CategoryController extends Controller
         $category->delete();
 
         return to_route('categories.index')->with('success', 'Kategori berhasil dihapus.');
+    }
+
+    private function ensureAdmin(): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
     }
 }

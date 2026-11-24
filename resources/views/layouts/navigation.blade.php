@@ -27,7 +27,9 @@
                 </div>
             </div>
         @endif
-        <a href="{{ route('stock.adjustments.create') }}" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-teal-50/70 transition hover:bg-white/10 hover:text-white"><span class="w-6 text-center text-lg">✎</span>Penyesuaian Stok</a>
+        @if (Auth::user()->isAdmin())
+            <a href="{{ route('stock.adjustments.create') }}" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-teal-50/70 transition hover:bg-white/10 hover:text-white"><span class="w-6 text-center text-lg">✎</span>Penyesuaian Stok</a>
+        @endif
         @if (Auth::user()->isAdmin())
             <a href="{{ route('settings.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-teal-50/70 transition hover:bg-white/10 hover:text-white"><span class="w-6 text-center text-lg">⚙</span>Pengaturan</a>
         @endif

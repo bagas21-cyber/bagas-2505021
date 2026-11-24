@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockInController;
 use App\Http\Controllers\SupplierController;
@@ -38,7 +39,13 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::get('/reports/stock', [ReportController::class, 'stock'])->name('reports.stock');
         Route::get('/reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
         Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
-        Route::view('/settings', 'placeholder', ['title' => 'Pengaturan'])->name('settings.index');
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+        Route::put('/settings/store', [SettingsController::class, 'updateStore'])->name('settings.store.update');
+        Route::put('/settings/preferences', [SettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
+        Route::post('/settings/users', [SettingsController::class, 'storeUser'])->name('settings.users.store');
+        Route::patch('/settings/users/{user}', [SettingsController::class, 'updateUser'])->name('settings.users.update');
+        Route::delete('/settings/users/{user}', [SettingsController::class, 'destroyUser'])->name('settings.users.destroy');
     });
 });
 
