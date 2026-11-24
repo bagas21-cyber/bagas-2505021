@@ -24,6 +24,7 @@ class ProductRequest extends FormRequest
     public function rules(): array
     {
         $product = $this->route('product');
+
         return [
             'category_id' => ['required', 'exists:categories,id'],
             'code' => ['nullable', 'string', 'max:50', Rule::unique('products', 'code')->ignore($product)],

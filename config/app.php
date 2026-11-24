@@ -41,6 +41,8 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+    'prevent_lazy_loading' => (bool) env('PREVENT_LAZY_LOADING', true),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL

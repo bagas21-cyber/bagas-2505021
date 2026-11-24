@@ -13,23 +13,28 @@ use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::create(['name' => 'Admin UMKMKu', 'email' => 'admin@umkmku.test', 'password' => Hash::make('password'), 'role' => 'admin', 'email_verified_at' => now()]);
-        $kasir = User::create(['name' => 'Kasir UMKMKu', 'email' => 'kasir@umkmku.test', 'password' => Hash::make('password'), 'role' => 'kasir', 'email_verified_at' => now()]);
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@umkmku.test'],
+            ['name' => 'Admin UMKMKu', 'password' => 'password', 'role' => 'admin', 'email_verified_at' => now()],
+        );
+        $kasir = User::firstOrCreate(
+            ['email' => 'kasir@umkmku.test'],
+            ['name' => 'Kasir UMKMKu', 'password' => 'password', 'role' => 'kasir', 'email_verified_at' => now()],
+        );
 
         $categoryNames = ['Sembako', 'Minuman', 'Snack', 'Mie Instan', 'Kebutuhan Rumah', 'Bumbu Dapur'];
-        $categories = collect($categoryNames)->mapWithKeys(fn (string $name) => [$name => Category::create(['name' => $name])]);
+        $categories = collect($categoryNames)->mapWithKeys(fn (string $name) => [$name => Category::firstOrCreate(['name' => $name])]);
 
         $suppliers = collect([
             ['name' => 'CV Sumber Rezeki', 'phone' => '081234567890', 'address' => 'Jl. Pasar Induk No. 12, Jakarta'],
             ['name' => 'PT Mitra Niaga Sejahtera', 'phone' => '082233445566', 'address' => 'Jl. Raya Industri No. 8, Bekasi'],
             ['name' => 'UD Berkah Makmur', 'phone' => '083344556677', 'address' => 'Jl. Cibaduyut No. 21, Bandung'],
-        ])->map(fn (array $supplier) => Supplier::create($supplier));
+        ])->map(fn (array $supplier) => Supplier::firstOrCreate(['name' => $supplier['name']], $supplier));
 
         $productRows = [
             ['Sembako', 'SMB-001', 'Beras Premium 5kg', 'karung', 68000, 76000],
@@ -62,24 +67,29 @@ class DatabaseSeeder extends Seeder
         $products = collect($productRows)->map(function (array $row, int $index) use ($categories): Product {
             [$category, $code, $name, $unit, $buyPrice, $sellPrice] = $row;
             $lowStock = $index < 3;
-            return Product::create([
-                'category_id' => $categories[$category]->id,
-                'code' => $code,
-                'name' => $name,
-                'unit' => $unit,
-                'buy_price' => $buyPrice,
-                'sell_price' => $sellPrice,
-                'stock' => 0,
-                'min_stock' => $lowStock ? 10 : 10,
-                'is_active' => true,
-            ]);
+
+            return Product::firstOrCreate(
+                ['code' => $code],
+                [
+                    'category_id' => $categories[$category]->id,
+                    'name' => $name,
+                    'unit' => $unit,
+                    'buy_price' => $buyPrice,
+                    'sell_price' => $sellPrice,
+                    'stock' => 0,
+                    'min_stock' => $lowStock ? 10 : 10,
+                    'is_active' => true,
+                ],
+            );
         });
 
-        Setting::insert([
-            ['key' => 'store_name', 'value' => 'UMKMKu'],
-            ['key' => 'store_address', 'value' => 'Jl. Mawar No. 10'],
-            ['key' => 'store_phone', 'value' => '081234567890'],
-        ]);
+        foreach ([
+            'store_name' => 'UMKMKu',
+            'store_address' => 'Jl. Mawar No. 10',
+            'store_phone' => '081234567890',
+        ] as $key => $value) {
+            Setting::firstOrCreate(['key' => $key], ['value' => $value]);
+        }
 
         $this->seedStockIns($admin, $suppliers, $products);
         $this->seedSales($admin, $kasir, $products);
@@ -87,6 +97,10 @@ class DatabaseSeeder extends Seeder
 
     private function seedStockIns(User $user, $suppliers, $products): void
     {
+        if (StockIn::query()->exists()) {
+            return;
+        }
+
         foreach ($suppliers as $supplierIndex => $supplier) {
             $items = $products->slice($supplierIndex * 8, $supplierIndex === 2 ? 9 : 8);
             $stockIn = StockIn::create([
@@ -122,6 +136,10 @@ class DatabaseSeeder extends Seeder
 
     private function seedSales(User $admin, User $kasir, $products): void
     {
+        if (Sale::query()->exists()) {
+            return;
+        }
+
         $saleProducts = $products->skip(3)->values();
         for ($saleNumber = 1; $saleNumber <= 120; $saleNumber++) {
             $date = now()->subDays(($saleNumber - 1) % 30)->setTime(8 + (($saleNumber * 3) % 12), ($saleNumber * 7) % 60);

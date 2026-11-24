@@ -20,6 +20,7 @@ class StockInRequest extends FormRequest
                     $item[$field] = preg_replace('/\D+/', '', (string) $item[$field]);
                 }
             }
+
             return $item;
         })->values()->all();
         $this->merge(['items' => $items]);

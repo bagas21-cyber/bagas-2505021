@@ -44,22 +44,26 @@ class StockInController extends Controller
         $data['user_id'] = $request->user()->id;
         $data['total'] = collect($items)->sum(fn (array $item) => (int) $item['qty'] * (int) $item['buy_price']);
 
-        try {
-            $stockIn = DB::transaction(function () use ($data, $items, $request): StockIn {
-                $stockIn = StockIn::create($data);
-                foreach ($items as $item) {
-                    $product = Product::findOrFail($item['product_id']);
-                    $stockIn->items()->create([...$item, 'subtotal' => $item['qty'] * $item['buy_price']]);
-                    $this->stockService->increase($product, (int) $item['qty'], $stockIn, $request->user()->id, 'Stok masuk '.$stockIn->invoice_no);
-                    if ($request->boolean('update_buy_price')) {
-                        $product->update(['buy_price' => $item['buy_price']]);
-                    }
+        $stockIn = DB::transaction(function () use ($data, $items, $request): StockIn {
+            $stockIn = StockIn::create($data);
+            $products = Product::query()
+                ->whereIn('id', collect($items)->pluck('product_id'))
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($items as $item) {
+                $product = $products->get((int) $item['product_id']);
+                abort_if($product === null, 422, 'Produk tidak ditemukan.');
+                $stockIn->items()->create([...$item, 'subtotal' => $item['qty'] * $item['buy_price']]);
+                $this->stockService->increase($product, (int) $item['qty'], $stockIn, $request->user()->id, 'Stok masuk '.$stockIn->invoice_no);
+                if ($request->boolean('update_buy_price')) {
+                    $product->update(['buy_price' => $item['buy_price']]);
                 }
-                return $stockIn;
-            });
-        } catch (\Throwable $exception) {
-            throw $exception;
-        }
+            }
+
+            return $stockIn;
+        });
 
         return to_route('stock-ins.show', $stockIn)->with('success', 'Stok masuk berhasil dicatat.');
     }
@@ -67,12 +71,14 @@ class StockInController extends Controller
     public function show(StockIn $stockIn): View
     {
         $stockIn->load(['supplier', 'user', 'items.product']);
+
         return view('stock-ins.show', compact('stockIn'));
     }
 
     public function autocomplete(Request $request): JsonResponse
     {
         $search = trim((string) $request->query('q'));
+
         return response()->json(Product::active()->when($search !== '', fn ($query) => $query->where(fn ($q) => $q->where('name', 'like', '%'.$search.'%')->orWhere('code', 'like', '%'.$search.'%')))->orderBy('name')->limit(10)->get(['id', 'code', 'name', 'unit', 'buy_price']));
     }
 

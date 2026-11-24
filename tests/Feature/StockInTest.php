@@ -6,7 +6,6 @@ use App\Exceptions\InsufficientStockException;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\StockIn;
-use App\Models\StockMovement;
 use App\Models\User;
 use App\Services\StockService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -67,6 +66,7 @@ class StockInTest extends TestCase
     private function product(array $overrides = []): Product
     {
         $category = Category::create(['name' => 'Umum']);
+
         return Product::create(array_merge(['category_id' => $category->id, 'code' => 'PRD-'.uniqid(), 'name' => 'Produk Uji', 'unit' => 'pcs', 'buy_price' => 1000, 'sell_price' => 1500, 'stock' => 0, 'min_stock' => 1, 'is_active' => true], $overrides));
     }
 }

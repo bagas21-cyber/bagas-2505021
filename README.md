@@ -1,11 +1,51 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# UMKMKu - Aplikasi Stok Barang
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+UMKMKu adalah aplikasi inventaris dan kasir berbasis Laravel untuk usaha kecil: kelola produk, kategori, supplier, stok masuk, penjualan, pembatalan transaksi, opname, dan laporan.
+
+## Fitur utama
+
+- Login dengan peran `admin` dan `kasir`.
+- Master produk, kategori, supplier, stok minimum, dan gambar produk.
+- Stok masuk serta pencatatan pergerakan stok atomik.
+- POS penjualan dengan validasi stok, pembayaran, kembalian, dan void oleh admin.
+- Stock opname untuk menyesuaikan stok fisik.
+- Laporan penjualan, stok, laba, dan ekspor CSV/XLSX/PDF.
+- Backup SQLite manual dan terjadwal harian dengan retensi tujuh file.
+
+## Pengembangan lokal
+
+```powershell
+composer install
+Copy-Item .env.example .env
+php artisan key:generate
+New-Item -ItemType File database\database.sqlite -Force
+php artisan migrate
+php artisan db:seed
+npm install
+npm run dev
+```
+
+Akun data contoh dari `DatabaseSeeder`: `admin@umkmku.test` dan `kasir@umkmku.test`, keduanya menggunakan password `password`. Seeder ini hanya untuk pengembangan dan pengujian, bukan produksi.
+
+Jalankan pengujian dan formatter:
+
+```powershell
+php artisan test
+vendor\bin\pint
+npm run build
+```
+
+## Produksi
+
+Gunakan `Database\Seeders\ProductionSeeder` untuk membuat admin pertama tanpa data dummy. Set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, dan `ADMIN_NAME` di `.env`, kemudian jalankan:
+
+```powershell
+php artisan migrate --force
+php artisan db:seed --class=Database\Seeders\ProductionSeeder --force
+php artisan optimize
+```
+
+Baca [DEPLOY.md](DEPLOY.md) untuk konfigurasi web server, scheduler, backup, permission, dan checklist go-live.
 
 ## About Laravel
 

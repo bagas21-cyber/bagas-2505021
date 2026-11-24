@@ -56,7 +56,7 @@ class ReportController extends Controller
 
         return response()->streamDownload(function () use ($type, $data): void {
             $handle = fopen('php://output', 'wb');
-            fputcsv($handle, ReportExport::headings($type));
+            fputcsv($handle, ReportExport::columnHeadings($type));
             foreach (ReportExport::rows($type, $data) as $row) {
                 fputcsv($handle, $row);
             }

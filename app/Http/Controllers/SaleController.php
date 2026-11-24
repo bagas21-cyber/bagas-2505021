@@ -52,7 +52,13 @@ class SaleController extends Controller
         $data['date'] = $data['date'] ?: now();
 
         $sale = DB::transaction(function () use ($data, $items, $request): Sale {
-            $products = Product::query()->whereIn('id', collect($items)->pluck('product_id'))->get()->keyBy('id');
+            $products = Product::query()
+                ->whereIn('id', collect($items)->pluck('product_id'))
+                ->where('is_active', true)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+            abort_if($products->count() !== count($items), 422, 'Produk tidak aktif atau tidak ditemukan.');
             $total = collect($items)->sum(fn (array $item): int => (int) $item['qty'] * (int) $products[$item['product_id']]->sell_price);
             abort_if((int) $data['paid'] < $total, 422, 'Pembayaran kurang dari total penjualan.');
             $sale = Sale::create([...$data, 'total' => $total, 'change' => (int) $data['paid'] - $total]);
@@ -75,18 +81,21 @@ class SaleController extends Controller
         $prefix = 'INV-'.now()->format('Ymd').'-';
         $last = Sale::query()->where('invoice_no', 'like', $prefix.'%')->lockForUpdate()->latest('id')->value('invoice_no');
         $number = $last ? ((int) substr($last, -4)) + 1 : 1;
+
         return $prefix.str_pad((string) $number, 4, '0', STR_PAD_LEFT);
     }
 
     public function show(Sale $sale): View
     {
         $sale->load(['user', 'items.product']);
+
         return view('sales.show', compact('sale'));
     }
 
     public function autocomplete(Request $request): JsonResponse
     {
         $search = trim((string) $request->query('q'));
+
         return response()->json(Product::active()->when($search !== '', fn ($query) => $query->where(fn ($q) => $q->where('name', 'like', '%'.$search.'%')->orWhere('code', 'like', '%'.$search.'%')))->orderBy('name')->limit(10)->get(['id', 'code', 'name', 'unit', 'sell_price', 'stock']));
     }
 

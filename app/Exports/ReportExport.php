@@ -23,7 +23,7 @@ class ReportExport implements FromArray, WithHeadings, WithTitle
 
     public function headings(): array
     {
-        return self::headings($this->type);
+        return self::columnHeadings($this->type);
     }
 
     public function title(): string
@@ -31,7 +31,7 @@ class ReportExport implements FromArray, WithHeadings, WithTitle
         return ucfirst($this->type);
     }
 
-    public static function headings(string $type): array
+    public static function columnHeadings(string $type): array
     {
         return match ($type) {
             'stock' => ['Waktu', 'Kode', 'Produk', 'Tipe', 'Perubahan', 'Stok Setelah', 'Dicatat Oleh', 'Catatan'],

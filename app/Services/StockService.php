@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Exceptions\InsufficientStockException;
 use App\Models\Product;
-use App\Models\StockMovement;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 

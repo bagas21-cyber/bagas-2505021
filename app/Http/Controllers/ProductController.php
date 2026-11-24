@@ -39,6 +39,7 @@ class ProductController extends Controller
     public function create(): View
     {
         $this->ensureAdmin();
+
         return view('products.create', ['product' => new Product(['unit' => 'pcs', 'min_stock' => 5]), 'categories' => Category::orderBy('name')->get()]);
     }
 
@@ -47,7 +48,7 @@ class ProductController extends Controller
         $this->ensureAdmin();
         $data = $request->validated();
         unset($data['remove_image']);
-        $data['code'] = $data['code'] ?: $this->nextCode($data['category_id']);
+        $data['code'] = $data['code'] ?? $this->nextCode($data['category_id']);
         $data['is_active'] = $request->boolean('is_active', true);
         $image = $request->file('image');
         unset($data['image']);
@@ -68,12 +69,14 @@ class ProductController extends Controller
     public function show(Product $product): View
     {
         $product->load('category')->load(['stockMovements' => fn ($query) => $query->latest()->limit(10), 'stockMovements.user']);
+
         return view('products.show', compact('product'));
     }
 
     public function edit(Product $product): View
     {
         $this->ensureAdmin();
+
         return view('products.edit', ['product' => $product, 'categories' => Category::orderBy('name')->get()]);
     }
 
@@ -103,12 +106,14 @@ class ProductController extends Controller
         $this->ensureAdmin();
         if ($product->saleItems()->exists() || $product->stockInItems()->exists()) {
             $product->update(['is_active' => false]);
+
             return to_route('products.index')->with('success', 'Produk dinonaktifkan karena memiliki riwayat transaksi.');
         }
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
         $product->delete();
+
         return to_route('products.index')->with('success', 'Produk berhasil dihapus.');
     }
 
