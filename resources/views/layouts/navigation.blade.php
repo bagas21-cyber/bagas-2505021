@@ -17,9 +17,20 @@
     </nav>
     <p class="mb-3 mt-9 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-teal-100/45">Lainnya</p>
     <nav class="space-y-1">
-        @foreach ([['stock.adjustments.create', 'Penyesuaian Stok', '✎'], ['reports.index', 'Laporan', '▤'], ['settings.index', 'Pengaturan', '⚙']] as [$routeName, $label, $icon])
-            <a href="{{ route($routeName) }}" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-teal-50/70 transition hover:bg-white/10 hover:text-white"><span class="w-6 text-center text-lg">{{ $icon }}</span>{{ $label }}</a>
-        @endforeach
+        @if (Auth::user()->isAdmin())
+            <div x-data="{ open: {{ request()->routeIs('reports.*') ? 'true' : 'false' }} }">
+                <button type="button" @click="open = !open" class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-teal-50/70 transition hover:bg-white/10 hover:text-white"><span class="w-6 text-center text-lg">▤</span>Laporan <span class="ml-auto text-xs">⌄</span></button>
+                <div x-show="open" class="ml-9 space-y-1 border-l border-teal-100/20 pl-3">
+                    @foreach ([['reports.sales', 'Penjualan'], ['reports.stock', 'Stok'], ['reports.profit', 'Laba']] as [$routeName, $label])
+                        <a href="{{ route($routeName) }}" class="block rounded-lg px-3 py-2 text-sm {{ request()->routeIs($routeName) ? 'bg-teal-400 text-[#102d2b]' : 'text-teal-50/70 hover:bg-white/10 hover:text-white' }}">{{ $label }}</a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+        <a href="{{ route('stock.adjustments.create') }}" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-teal-50/70 transition hover:bg-white/10 hover:text-white"><span class="w-6 text-center text-lg">✎</span>Penyesuaian Stok</a>
+        @if (Auth::user()->isAdmin())
+            <a href="{{ route('settings.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-teal-50/70 transition hover:bg-white/10 hover:text-white"><span class="w-6 text-center text-lg">⚙</span>Pengaturan</a>
+        @endif
     </nav>
     <div class="mt-auto rounded-2xl bg-white/10 p-4"><p class="text-xs font-bold text-teal-100">Butuh bantuan?</p><p class="mt-1 text-xs leading-relaxed text-teal-100/60">Pelajari cara mengelola toko lebih cepat.</p><a href="#" class="mt-3 inline-block text-xs font-bold text-teal-300">Lihat panduan →</a></div>
     <form method="POST" action="{{ route('logout') }}" class="mt-4">@csrf<button class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-teal-50/70 hover:bg-rose-400/10 hover:text-rose-200"><span class="w-6 text-center">↪</span>Keluar</button></form>

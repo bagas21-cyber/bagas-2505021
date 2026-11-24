@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockInController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,8 +18,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('categories', \App\Http\Controllers\CategoryController::class);
-    Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('suppliers', SupplierController::class);
     Route::resource('products', ProductController::class);
     Route::get('stock-ins/autocomplete', [StockInController::class, 'autocomplete'])->name('stock-ins.autocomplete');
     Route::post('stock-ins/{stock_in}/cancel', [StockInController::class, 'cancel'])->name('stock-ins.cancel');
@@ -29,12 +32,14 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('sales/autocomplete', [SaleController::class, 'autocomplete'])->name('sales.autocomplete');
     Route::post('sales/{sale}/void', [SaleController::class, 'void'])->name('sales.void');
     Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'show']);
-    foreach ([
-        'reports' => 'Laporan',
-        'settings' => 'Pengaturan',
-    ] as $uri => $label) {
-        Route::view('/'.$uri, 'placeholder', ['title' => $label])->name($uri.'.index');
-    }
+    Route::middleware('admin')->group(function (): void {
+        Route::redirect('/reports', '/reports/sales')->name('reports.index');
+        Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+        Route::get('/reports/stock', [ReportController::class, 'stock'])->name('reports.stock');
+        Route::get('/reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
+        Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+        Route::view('/settings', 'placeholder', ['title' => 'Pengaturan'])->name('settings.index');
+    });
 });
 
 Route::middleware('auth')->group(function () {
