@@ -67,6 +67,11 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function stockOpnameItems(): HasMany
+    {
+        return $this->hasMany(StockOpnameItem::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);

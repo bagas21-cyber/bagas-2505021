@@ -30,6 +30,11 @@ class User extends Authenticatable
         return $this->hasMany(StockIn::class);
     }
 
+    public function stockOpnames()
+    {
+        return $this->hasMany(StockOpname::class);
+    }
+
     public function sales()
     {
         return $this->hasMany(Sale::class);
